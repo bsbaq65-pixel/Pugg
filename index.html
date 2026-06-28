@@ -2,25 +2,326 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя игра</title>
-    <!-- Подключаем SDK от Telegram -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Metro Farm Royale</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #222; color: white; }
+        /* Основные стили в стиле милитари/пабг */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1a1a1d;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Верхняя панель с деньгами */
+        header {
+            background-color: #0f0f11;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #f39c12;
+            border-bottom: 2px solid #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Контейнер для экранов */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 80px; /* Место для меню */
+        }
+
+        /* Скрытие неактивных экранов */
+        .screen { display: none; }
+        .screen.active { display: block; text-align: center; }
+
+        /* Стили для карточек карт */
+        .map-card {
+            background-color: #2c3e50;
+            border: 2px solid #34495e;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .map-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+        .map-card h3 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+            font-size: 22px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .map-card button {
+            width: 100%;
+            padding: 15px;
+            background-color: #e67e22;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .map-card button:active { background-color: #d35400; }
+
+        /* Экран рейда и тапалка */
+        #crate-container { margin-top: 30px; }
+        #crate-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            transition: transform 0.1s;
+        }
+        #crate-img:active { transform: scale(0.9); }
+        #tap-info { margin-top: 15px; font-size: 18px; color: #bdc3c7; }
+
+        /* Лут и эвакуация */
+        .loot-item {
+            background-color: #34495e;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 5px solid #e67e22;
+        }
+        .btn-evac {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+        }
+        .btn-evac:active { background-color: #2ecc71; }
+
+        /* Нижнее навигационное меню */
+        nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #0f0f11;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 2px solid #333;
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        nav button.active { color: #f39c12; }
+        nav button span { font-size: 24px; margin-bottom: 5px; }
+
+        .placeholder-text { margin-top: 50px; color: #7f8c8d; }
     </style>
 </head>
 <body>
-    <h1>Игра в разработке!</h1>
-    <p>Это прототип моей будущей игры в стиле PUBG.</p>
-    <button onclick="tg.close()">Закрыть</button>
+
+    <!-- Шапка с балансом -->
+    <header>
+        Баланс: <span id="balance">0</span> 💰
+    </header>
+
+    <!-- Основной контент -->
+    <main id="content">
+        
+        <!-- Экран: Битва (Выбор карты) -->
+        <div id="screen-battle" class="screen active">
+            <h2>Выбор локации</h2>
+            
+            <div class="map-card">
+                <img src="https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=400&q=80" alt="Базовая">
+                <h3>Лесной Бункер</h3>
+                <button onclick="startRaid('Бункер')">Высадиться</button>
+            </div>
+            
+            <div class="map-card">
+                <img src="https://images.unsplash.com/photo-1506501139174-099022df5260?w=400&q=80" alt="Город">
+                <h3>Заброшенный Город</h3>
+                <button onclick="startRaid('Город')">Высадиться</button>
+            </div>
+            
+            <div class="map-card" style="border-color: #c0392b;">
+                <img src="https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=400&q=80" alt="Радиация">
+                <h3 style="color: #ff4757;">Карта 7 (Радзона)</h3>
+                <button onclick="startRaid('Радзона')" style="background-color: #c0392b;">Опасная высадка</button>
+            </div>
+        </div>
+
+        <!-- Экран: Рейд (Тапалка) -->
+        <div id="screen-raid" class="screen">
+            <h2 id="raid-title">В рейде...</h2>
+            
+            <div id="crate-container">
+                <p>Ломай ящик, чтобы забрать лут!</p>
+                <img id="crate-img" src="https://images.unsplash.com/photo-1620601959685-64906f0e4b85?w=400&q=80" alt="Ящик" onclick="tapCrate()">
+                <div id="tap-info">Осталось ударов: <span id="clicks-left">10</span></div>
+            </div>
+
+            <div id="loot-container" style="display: none;">
+                <h3>Собранный хабар:</h3>
+                <div id="loot-list"></div>
+                <button class="btn-evac" onclick="evacuate()">Эвакуация (Продать всё)</button>
+            </div>
+        </div>
+
+        <!-- Заглушки для других меню -->
+        <div id="screen-boss" class="screen"><h2 class="placeholder-text">Боссы появятся в следующем обновлении!</h2></div>
+        <div id="screen-cases" class="screen"><h2 class="placeholder-text">Магазин кейсов в разработке...</h2></div>
+        <div id="screen-weapons" class="screen"><h2 class="placeholder-text">Склад оружия пуст!</h2></div>
+
+    </main>
+
+    <!-- Нижнее меню -->
+    <nav>
+        <button id="nav-boss" onclick="switchTab('boss')"><span>👹</span>Босс</button>
+        <button id="nav-cases" onclick="switchTab('cases')"><span>📦</span>Кейсы</button>
+        <button id="nav-weapons" onclick="switchTab('weapons')"><span>🔫</span>Оружие</button>
+        <button id="nav-battle" class="active" onclick="switchTab('battle')"><span>🚁</span>Битва</button>
+    </nav>
 
     <script>
-        // Инициализация Web App
+        // Инициализация Telegram Web App
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Развернуть на весь экран
-        
-        console.log("Игра запущена пользователем:", tg.initDataUnsafe.user);
+        tg.expand(); // Разворачиваем на весь экран
+
+        // Игровые переменные
+        let balance = 0;
+        let currentLootValue = 0;
+        let clicksRequired = 0;
+
+        // База возможного лута
+        const lootTable = [
+            { name: "Изолента", price: 500, chance: 40, icon: "🩹" },
+            { name: "Патроны 5.56", price: 1500, chance: 30, icon: "🔋" },
+            { name: "Аптечка", price: 4000, chance: 15, icon: "💉" },
+            { name: "Сломанный ПНВ", price: 15000, chance: 10, icon: "🥽" },
+            { name: "Секретные документы", price: 50000, chance: 4, icon: "📄" },
+            { name: "Золотой слиток", price: 500000, chance: 1, icon: "🥇" } // Тот самый редкий дроп
+        ];
+
+        // Функция переключения вкладок нижнего меню
+        function switchTab(tabName) {
+            // Скрываем все экраны
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            // Убираем подсветку со всех кнопок меню
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            
+            // Показываем нужный экран
+            document.getElementById('screen-' + tabName).classList.add('active');
+            document.getElementById('nav-' + tabName).classList.add('active');
+        }
+
+        // Начало рейда (нажатие на высадку)
+        function startRaid(mapName) {
+            currentLootValue = 0;
+            document.getElementById('loot-list').innerHTML = '';
+            document.getElementById('loot-container').style.display = 'none';
+            document.getElementById('crate-container').style.display = 'block';
+            
+            // Сложность ящика зависит от карты (в Радзоне бить дольше)
+            clicksRequired = mapName === 'Радзона' ? 20 : 10;
+            document.getElementById('clicks-left').innerText = clicksRequired;
+            document.getElementById('raid-title').innerText = 'Рейд: ' + mapName;
+
+            // Переключаем на экран рейда (скрываем нижнее меню для атмосферы)
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById('screen-raid').classList.add('active');
+            document.querySelector('nav').style.display = 'none';
+        }
+
+        // Логика тапа по ящику
+        function tapCrate() {
+            if (clicksRequired > 0) {
+                clicksRequired--;
+                document.getElementById('clicks-left').innerText = clicksRequired;
+                
+                // Легкая вибрация телефона при тапе (фишка Telegram)
+                tg.HapticFeedback.impactOccurred('light');
+
+                if (clicksRequired <= 0) {
+                    openCrate();
+                }
+            }
+        }
+
+        // Открытие ящика и генерация лута
+        function openCrate() {
+            tg.HapticFeedback.notificationOccurred('success'); // Вибрация успеха
+            document.getElementById('crate-container').style.display = 'none';
+            document.getElementById('loot-container').style.display = 'block';
+
+            // Генерируем от 2 до 5 предметов
+            let itemsCount = Math.floor(Math.random() * 4) + 2; 
+            
+            for (let i = 0; i < itemsCount; i++) {
+                let item = getRandomItem();
+                currentLootValue += item.price;
+                
+                // Добавляем предмет на экран
+                let lootDiv = document.createElement('div');
+                lootDiv.className = 'loot-item';
+                lootDiv.innerHTML = `<span>${item.icon} ${item.name}</span> <span>${item.price.toLocaleString('ru-RU')} 💰</span>`;
+                document.getElementById('loot-list').appendChild(lootDiv);
+            }
+        }
+
+        // Математика рандома для лута
+        function getRandomItem() {
+            let rand = Math.random() * 100;
+            let cumulativeChance = 0;
+            
+            for (let item of lootTable) {
+                cumulativeChance += item.chance;
+                if (rand <= cumulativeChance) {
+                    return item;
+                }
+            }
+            return lootTable[0]; // Если что-то пошло не так, даем изоленту
+        }
+
+        // Эвакуация и автопродажа
+        function evacuate() {
+            // Добавляем деньги на баланс
+            balance += currentLootValue;
+            
+            // Анимируем счетчик (просто обновляем текст)
+            document.getElementById('balance').innerText = balance.toLocaleString('ru-RU');
+            
+            // Возвращаем нижнее меню и кидаем обратно в меню выбора карт
+            document.querySelector('nav').style.display = 'flex';
+            switchTab('battle');
+            
+            // Уведомление через Telegram
+            tg.showAlert('Эвакуация успешна!\nПродано хабара на: ' + currentLootValue.toLocaleString('ru-RU') + ' 💰');
+        }
     </script>
 </body>
 </html>
