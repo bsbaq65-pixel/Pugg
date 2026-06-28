@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Metro Farm Royale</title>
+    <title>Metro Farm UI</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Основные стили */
+        /* Темная тема и базовые настройки */
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #1a1a1d;
-            color: #e0e0e0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121214; /* Глубокий темный фон */
+            color: #ffffff;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -20,365 +20,362 @@
             user-select: none;
         }
 
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ (КАК НА СКРИНШОТАХ) --- */
         header {
-            background-color: #0f0f11;
-            padding: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: #f39c12;
-            border-bottom: 2px solid #333;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #1a1a1d;
+            border-bottom: 1px solid #2a2a2d;
             z-index: 10;
         }
 
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #444;
+            border-radius: 8px;
+            background-image: url('https://img.icons8.com/color/256/circled-user-male-skin-type-4--v1.png');
+            background-size: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name { font-weight: bold; font-size: 14px; }
+        
+        .exp-bar-bg {
+            width: 80px;
+            height: 4px;
+            background-color: #333;
+            border-radius: 2px;
+            margin-top: 4px;
+        }
+        .exp-bar-fill {
+            width: 30%;
+            height: 100%;
+            background-color: #f1c40f; /* Желтый опыт */
+            border-radius: 2px;
+        }
+        .exp-text { font-size: 10px; color: #888; margin-top: 2px; }
+
+        .resources {
+            display: flex;
+            gap: 8px;
+        }
+
+        .resource-badge {
+            background-color: #222;
+            border: 1px solid #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- ОСНОВНОЙ КОНТЕЙНЕР --- */
         main {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 80px;
+            padding: 15px;
+            padding-bottom: 90px;
         }
 
         .screen { display: none; }
-        .screen.active { display: block; text-align: center; }
+        .screen.active { display: block; }
 
-        /* Стили карт (выбор локации) */
-        .map-card {
-            background-color: #2c3e50;
-            border: 2px solid #34495e;
-            border-radius: 10px;
+        .screen-title {
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .screen-subtitle {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        /* --- КАРТОЧКИ В РАЗДЕЛЕ "ИГРЫ" --- */
+        .game-mode-card {
+            background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 80px;
+            border-radius: 16px;
             margin-bottom: 15px;
-            overflow: hidden;
-            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border: 1px solid #333;
         }
-        .map-card img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            opacity: 0.6;
-            display: block;
+        .game-mode-card .icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            margin-right: 15px;
         }
-        .map-card h3 {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            margin: 0;
-            font-size: 22px;
-            text-shadow: 2px 2px 4px #000;
-            width: 100%;
-        }
-        .map-card button {
-            width: 100%;
-            padding: 15px;
-            background-color: #e67e22;
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .game-mode-info h3 { margin: 0; font-size: 16px; text-transform: uppercase; }
+        .game-mode-info p { margin: 0; font-size: 12px; color: #aaa; }
 
-        /* Рейд и Ящик */
-        #crate-img {
-            width: 180px;
-            height: 180px;
-            margin-top: 20px;
-            transition: transform 0.1s;
+        /* --- КАРТОЧКИ БОССОВ --- */
+        .boss-card {
+            background-color: #1e1e22;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            border: 1px solid #2a2a2d;
         }
-        #crate-img:active { transform: scale(0.9); }
-        
-        .loot-item {
-            background-color: #34495e;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
+        .boss-header {
             display: flex;
             justify-content: space-between;
-            border-left: 5px solid #e67e22;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        .btn-evac {
-            margin-top: 20px;
-            padding: 15px 30px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
+        .boss-name {
             font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .boss-hp {
+            background-color: #3b1b1b;
+            color: #ff4757;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: bold;
-            width: 100%;
         }
-
-        /* Стили Босса */
-        #boss-img {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            transition: transform 0.1s;
-        }
-        #boss-img:active { transform: scale(0.9) rotate(5deg); }
-        
-        #health-bar-bg {
-            width: 100%;
-            height: 25px;
-            background-color: #333;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid #555;
-            margin: 10px 0;
-            position: relative;
-        }
-        #health-bar-fill {
-            height: 100%;
-            background-color: #e74c3c;
-            width: 100%;
-            transition: width 0.2s ease-out;
-        }
-        #health-text {
+        .boss-img {
+            width: 120px;
+            height: 120px;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-weight: bold;
-            color: white;
-            font-size: 14px;
+            right: 10px;
+            top: 20px;
+            object-fit: contain;
         }
+        .boss-stats { margin-bottom: 15px; width: 60%; }
+        .boss-stats p { font-size: 12px; color: #888; margin: 4px 0; }
+        
+        .reward-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .reward-item {
+            background-color: #2a2a2d;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .reward-item.gold { color: #f1c40f; border: 1px solid #5a4b15; }
+        .reward-item.xp { color: #8e44ad; border: 1px solid #3c1e4a; }
 
-        /* Навигация */
+        .btn-yellow {
+            background-color: #f1c40f;
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-yellow:active { background-color: #d4ac0d; transform: scale(0.98); }
+
+        /* --- НИЖНЕЕ МЕНЮ (КАК НА СКРИНШОТАХ) --- */
         nav {
             position: fixed;
             bottom: 0;
             width: 100%;
-            background-color: #0f0f11;
+            background-color: #1a1a1d;
             display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 2px solid #333;
+            justify-content: space-between;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            border-top: 1px solid #2a2a2d;
+            padding-bottom: 20px; /* Для айфонов/смартфонов без кнопок */
         }
         nav button {
             background: none;
             border: none;
-            color: #7f8c8d;
-            font-size: 14px;
+            color: #666;
+            font-size: 10px;
+            font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 4px;
+            width: 20%;
         }
-        nav button.active { color: #f39c12; }
-        nav button span { font-size: 24px; margin-bottom: 5px; }
-        .placeholder-text { margin-top: 50px; color: #7f8c8d; }
-    </style>
+        nav button.active { color: #f1c40f; } /* Желтый цвет активной кнопки */
+        nav button span { font-size: 22px; }
+
+        .placeholder { text-align: center; color: #666; margin-top: 50px; }
+    </script>
 </head>
 <body>
 
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ С РЕСУРСАМИ -->
     <header>
-        Баланс: <span id="balance">0</span> 💰
+        <div class="profile-section">
+            <div class="avatar"></div>
+            <div class="user-info">
+                <span class="user-name">Игрок</span>
+                <div class="exp-bar-bg"><div class="exp-bar-fill"></div></div>
+                <span class="exp-text">опыт 330 / 1200</span>
+            </div>
+        </div>
+        <div class="resources">
+            <div class="resource-badge">⚡ 100</div>
+            <div class="resource-badge" style="color: #f1c40f;">🪙 <span id="balance">345</span></div>
+            <div class="resource-badge" style="color: #2ecc71;">💵 18</div>
+        </div>
     </header>
 
     <main id="content">
         
-        <!-- БИТВА (КАРТЫ) -->
-        <div id="screen-battle" class="screen active">
-            <h2>Выбор локации</h2>
-            <div class="map-card">
-                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80" alt="Бункер">
-                <h3>Лесной Бункер</h3>
-                <button onclick="startRaid('Бункер')">Высадиться</button>
+        <!-- ЭКРАН 1: ГЛАВНАЯ -->
+        <div id="screen-main" class="screen">
+            <h1 class="screen-title">Главная</h1>
+            <div class="placeholder">Здесь будет твой персонаж в 3D (как на фото)</div>
+        </div>
+
+        <!-- ЭКРАН 2: ИНВЕНТАРЬ -->
+        <div id="screen-inventory" class="screen">
+            <h1 class="screen-title">Инвентарь</h1>
+            <p class="screen-subtitle">Твои вещи и расходники</p>
+            <div class="placeholder">Здесь будет сетка слотов для экипировки</div>
+        </div>
+
+        <!-- ЭКРАН 3: ИГРЫ (БЫВШАЯ БИТВА) -->
+        <div id="screen-games" class="screen active">
+            <h1 class="screen-title">Игры</h1>
+            <p class="screen-subtitle">Мини-игры и испытания для выживших</p>
+
+            <div class="game-mode-card" style="background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.1)), url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80');">
+                <div class="icon">📍</div>
+                <div class="game-mode-info">
+                    <h3>Миссии</h3>
+                    <p>В путь за лутом</p>
+                </div>
             </div>
-            <div class="map-card">
-                <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80" alt="Город">
-                <h3>Заброшенный Город</h3>
-                <button onclick="startRaid('Город')">Высадиться</button>
+
+            <div class="game-mode-card" style="background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.1)), url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80');">
+                <div class="icon">🎯</div>
+                <div class="game-mode-info">
+                    <h3>Полигон</h3>
+                    <p>Тренировка реакции</p>
+                </div>
             </div>
-            <div class="map-card" style="border-color: #c0392b;">
-                <img src="https://images.unsplash.com/photo-1505506874110-6a7a48e14770?w=600&q=80" alt="Радзона">
-                <h3 style="color: #ff4757;">Карта 7 (Радзона)</h3>
-                <button onclick="startRaid('Радзона')" style="background-color: #c0392b;">Опасная высадка</button>
+
+            <div class="game-mode-card" style="border-color: #c0392b; background-image: linear-gradient(to right, rgba(200,0,0,0.8), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1505506874110-6a7a48e14770?w=600&q=80');">
+                <div class="icon" style="color: #ff4757;">💀</div>
+                <div class="game-mode-info">
+                    <h3 style="color: #ff4757;">Зона Лута</h3>
+                    <p>Рейд за редким лутом (Тапалка)</p>
+                </div>
             </div>
         </div>
 
-        <!-- РЕЙД (ЯЩИК) -->
-        <div id="screen-raid" class="screen">
-            <h2 id="raid-title">В рейде...</h2>
-            <div id="crate-container">
-                <p>Ломай ящик, чтобы забрать лут!</p>
-                <img id="crate-img" src="https://img.icons8.com/color/256/wooden-crate.png" alt="Ящик" onclick="tapCrate()">
-                <p style="font-size: 18px; color: #bdc3c7;">Осталось ударов: <span id="clicks-left">10</span></p>
+        <!-- ЭКРАН 4: БОССЫ -->
+        <div id="screen-bosses" class="screen">
+            <h1 class="screen-title">Боссы</h1>
+            <p class="screen-subtitle">Рейды с другими игроками</p>
+
+            <!-- Босс 1 -->
+            <div class="boss-card">
+                <div class="boss-header">
+                    <div class="boss-name">Малец</div>
+                    <div class="boss-hp">8 000 ❤</div>
+                </div>
+                <img src="https://img.icons8.com/color/256/ninja-head.png" class="boss-img" alt="Boss">
+                <div class="boss-stats">
+                    <p>Доступно сегодня: 7/7</p>
+                    <p style="margin-top: 10px; font-weight: bold; color: #fff;">Награда:</p>
+                    <div class="reward-box">
+                        <div class="reward-item gold">🪙 800</div>
+                        <div class="reward-item xp">⭐ 200</div>
+                    </div>
+                </div>
+                <button class="btn-yellow">В БОЙ</button>
             </div>
-            <div id="loot-container" style="display: none;">
-                <h3>Собранный хабар:</h3>
-                <div id="loot-list"></div>
-                <button class="btn-evac" onclick="evacuate()">Эвакуация (Продать всё)</button>
+
+            <!-- Босс 2 -->
+            <div class="boss-card">
+                <div class="boss-header">
+                    <div class="boss-name">Потрошитель</div>
+                    <div class="boss-hp">25 000 ❤</div>
+                </div>
+                <img src="https://img.icons8.com/color/256/zombie.png" class="boss-img" alt="Boss">
+                <div class="boss-stats">
+                    <p>Доступно сегодня: 3/3</p>
+                    <p style="margin-top: 10px; font-weight: bold; color: #fff;">Награда:</p>
+                    <div class="reward-box">
+                        <div class="reward-item gold">🪙 3K</div>
+                        <div class="reward-item xp">⭐ 500</div>
+                    </div>
+                </div>
+                <button class="btn-yellow">В БОЙ</button>
             </div>
         </div>
 
-        <!-- БОСС -->
-        <div id="screen-boss" class="screen">
-            <h2>Радиационный Мутант</h2>
-            <p>Забей его, чтобы сорвать куш!</p>
-            
-            <div id="health-bar-bg">
-                <div id="health-bar-fill"></div>
-                <div id="health-text"><span id="boss-hp">50</span> / <span id="boss-max-hp">50</span></div>
-            </div>
-
-            <img id="boss-img" src="https://img.icons8.com/color/256/monster-face.png" alt="Босс" onclick="attackBoss()">
-            <p style="color: #95a5a6;">Тапай по боссу!</p>
+        <!-- ЭКРАН 5: КЕЙСЫ -->
+        <div id="screen-cases" class="screen">
+            <h1 class="screen-title">Кейсы</h1>
+            <p class="screen-subtitle">Вещи на любой вкус и цвет</p>
+            <div class="placeholder">Здесь будут ящики с вероятностями дропа</div>
         </div>
-
-        <div id="screen-cases" class="screen"><h2 class="placeholder-text">Магазин кейсов в разработке...</h2></div>
-        <div id="screen-weapons" class="screen"><h2 class="placeholder-text">Склад оружия пуст!</h2></div>
 
     </main>
 
+    <!-- НОВОЕ НИЖНЕЕ МЕНЮ -->
     <nav>
-        <button id="nav-boss" onclick="switchTab('boss')"><span>👹</span>Босс</button>
-        <button id="nav-cases" onclick="switchTab('cases')"><span>📦</span>Кейсы</button>
-        <button id="nav-weapons" onclick="switchTab('weapons')"><span>🔫</span>Оружие</button>
-        <button id="nav-battle" class="active" onclick="switchTab('battle')"><span>🚁</span>Битва</button>
+        <button id="nav-main" onclick="switchTab('main')"><span>👤</span>ГЛАВНАЯ</button>
+        <button id="nav-inventory" onclick="switchTab('inventory')"><span>🎒</span>ИНВЕНТАРЬ</button>
+        <button id="nav-games" class="active" onclick="switchTab('games')"><span>🎯</span>ИГРЫ</button>
+        <button id="nav-bosses" onclick="switchTab('bosses')"><span>💀</span>БОССЫ</button>
+        <button id="nav-cases" onclick="switchTab('cases')"><span>📦</span>КЕЙСЫ</button>
     </nav>
 
     <script>
+        // Инициализация Telegram Web App
         let tg = window.Telegram.WebApp;
         tg.expand(); 
 
-        // Инициализация сохранения
-        let balance = 0;
-        
-        // Загрузка прогресса при старте игры
-        if (localStorage.getItem("metroFarmBalance") !== null) {
-            balance = parseInt(localStorage.getItem("metroFarmBalance"));
-        }
-        updateBalanceDisplay();
-
-        function saveProgress() {
-            localStorage.setItem("metroFarmBalance", balance);
-            updateBalanceDisplay();
-        }
-
-        function updateBalanceDisplay() {
-            document.getElementById('balance').innerText = balance.toLocaleString('ru-RU');
-        }
-
-        // Переменные рейда
-        let currentLootValue = 0;
-        let clicksRequired = 0;
-
-        const lootTable = [
-            { name: "Изолента", price: 500, chance: 40, icon: "🩹" },
-            { name: "Патроны 5.56", price: 1500, chance: 30, icon: "🔋" },
-            { name: "Аптечка", price: 4000, chance: 15, icon: "💉" },
-            { name: "Сломанный ПНВ", price: 15000, chance: 10, icon: "🥽" },
-            { name: "Секретные документы", price: 50000, chance: 4, icon: "📄" },
-            { name: "Золотой слиток", price: 500000, chance: 1, icon: "🥇" }
-        ];
-
-        // Навигация
+        // Логика переключения вкладок
         function switchTab(tabName) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            
             document.getElementById('screen-' + tabName).classList.add('active');
             document.getElementById('nav-' + tabName).classList.add('active');
-        }
-
-        // Логика Рейда
-        function startRaid(mapName) {
-            currentLootValue = 0;
-            document.getElementById('loot-list').innerHTML = '';
-            document.getElementById('loot-container').style.display = 'none';
-            document.getElementById('crate-container').style.display = 'block';
             
-            clicksRequired = mapName === 'Радзона' ? 20 : 10;
-            document.getElementById('clicks-left').innerText = clicksRequired;
-            document.getElementById('raid-title').innerText = 'Рейд: ' + mapName;
-
-            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-            document.getElementById('screen-raid').classList.add('active');
-            document.querySelector('nav').style.display = 'none';
-        }
-
-        function tapCrate() {
-            if (clicksRequired > 0) {
-                clicksRequired--;
-                document.getElementById('clicks-left').innerText = clicksRequired;
-                tg.HapticFeedback.impactOccurred('light');
-
-                if (clicksRequired <= 0) {
-                    openCrate();
-                }
-            }
-        }
-
-        function openCrate() {
-            tg.HapticFeedback.notificationOccurred('success');
-            document.getElementById('crate-container').style.display = 'none';
-            document.getElementById('loot-container').style.display = 'block';
-
-            let itemsCount = Math.floor(Math.random() * 4) + 2; 
-            for (let i = 0; i < itemsCount; i++) {
-                let item = getRandomItem();
-                currentLootValue += item.price;
-                let lootDiv = document.createElement('div');
-                lootDiv.className = 'loot-item';
-                lootDiv.innerHTML = `<span>${item.icon} ${item.name}</span> <span>${item.price.toLocaleString('ru-RU')} 💰</span>`;
-                document.getElementById('loot-list').appendChild(lootDiv);
-            }
-        }
-
-        function getRandomItem() {
-            let rand = Math.random() * 100;
-            let cumulativeChance = 0;
-            for (let item of lootTable) {
-                cumulativeChance += item.chance;
-                if (rand <= cumulativeChance) { return item; }
-            }
-            return lootTable[0];
-        }
-
-        function evacuate() {
-            balance += currentLootValue;
-            saveProgress(); // Сохраняем после эвакуации
-            document.querySelector('nav').style.display = 'flex';
-            switchTab('battle');
-            tg.showAlert('Эвакуация успешна!\nЗаработано: ' + currentLootValue.toLocaleString('ru-RU') + ' 💰');
-        }
-
-        // Логика Босса
-        let bossMaxHP = 50;
-        let bossCurrentHP = 50;
-
-        function attackBoss() {
-            if (bossCurrentHP > 0) {
-                bossCurrentHP--;
-                
-                // Обновляем полоску ХП
-                let hpPercent = (bossCurrentHP / bossMaxHP) * 100;
-                document.getElementById('health-bar-fill').style.width = hpPercent + '%';
-                document.getElementById('boss-hp').innerText = bossCurrentHP;
-                
-                tg.HapticFeedback.impactOccurred('medium');
-
-                if (bossCurrentHP <= 0) {
-                    // Босс убит! Генерируем награду от 100к до 1М
-                    let minReward = 100000;
-                    let maxReward = 1000000;
-                    let reward = Math.floor(Math.random() * (maxReward - minReward + 1)) + minReward;
-                    
-                    balance += reward;
-                    saveProgress(); // Сохраняем прогресс!
-                    
-                    tg.showAlert('🔥 БОСС ПОВЕРЖЕН! 🔥\nТвоя награда: ' + reward.toLocaleString('ru-RU') + ' 💰');
-                    
-                    // Возрождаем босса, делаем его чуть сильнее
-                    bossMaxHP += 20; 
-                    bossCurrentHP = bossMaxHP;
-                    
-                    document.getElementById('health-bar-fill').style.width = '100%';
-                    document.getElementById('boss-hp').innerText = bossCurrentHP;
-                    document.getElementById('boss-max-hp').innerText = bossMaxHP;
-                }
-            }
+            // Легкая вибрация при переключении меню
+            tg.HapticFeedback.impactOccurred('light');
         }
     </script>
 </body>
-</html>
+    </html>
+        
